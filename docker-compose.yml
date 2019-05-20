@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+  users_db:
+    image: nouchka/sqlite3:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./db/:/root/db/
+
+  users_ms:
+    build: .
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:3000"
+    container_name: users_ms
+    depends_on:
+      - users_db
+    ports:
+      - "3000:3000"
