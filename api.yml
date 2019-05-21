@@ -7,7 +7,7 @@ info:
   description: Python + SQLite3
   license:
     name: Federico Gómez- Software Architecture, 2019-I
-host: 192.168.99.102:3000
+host: 192.168.99.102:3001
 basePath: /api/v1/
 schemes:
   - http
@@ -16,7 +16,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /auth/register:
+  /register:
     post:
       summary: Creates a new user
       operationId: registerUser
@@ -32,7 +32,7 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/User'
-  /auth/login:
+  /login:
     post:
       summary: Logs in an existing user
       operationId: loginUser
@@ -50,20 +50,24 @@ paths:
             $ref: '#/definitions/Authentication'
         '401':
           description: Unauthorized       
+  /logout:
+    get:
+      summary: Logs out a currently logged in user
+      operationId: logoutUser
+      responses:
+        '200':
+          description: OK
+ 
   /songs:
     get:
       summary: Fetches dummy registers for "songs"
       operationId: listSongs
-      parameters:
-        - name: List Songs
-          in: body
-          required: true
-          description: User Object
-          schema:
-            $ref: '#/definitions/SongsList'
+
       responses:
         '200':
           description: OK
+          schema:
+            $ref: '#/definitions/SongsList'
         '401':
           description: Unauthorized
           schema:
