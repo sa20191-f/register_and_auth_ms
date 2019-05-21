@@ -10,9 +10,9 @@ services:
 
   users_ms:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:3000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:3001"
     container_name: users_ms
     depends_on:
       - users_db
     ports:
-      - "3000:3000"
+      - "3001:3001"
