@@ -1,0 +1,124 @@
+#Test with: http://editor.swagger.io/
+
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Microservice for User register and authentication
+  description: Python + SQLite3
+  license:
+    name: Federico Gómez- Software Architecture, 2019-I
+host: 192.168.99.102:3000
+basePath: /api/v1/
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /auth/register:
+    post:
+      summary: Creates a new user
+      operationId: registerUser
+      parameters:
+        - name: Register Users
+          in: body
+          required: true
+          description: User Object
+          schema:
+            $ref: '#/definitions/UserInput'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/User'
+  /auth/login:
+    post:
+      summary: Logs in an existing user
+      operationId: loginUser
+      parameters:
+        - name: Logs in Users
+          in: body
+          required: true
+          description: User Object
+          schema:
+            $ref: '#/definitions/UserInput'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Authentication'
+        '401':
+          description: Unauthorized       
+  /songs:
+    get:
+      summary: Fetches dummy registers for "songs"
+      operationId: listSongs
+      parameters:
+        - name: List Songs
+          in: body
+          required: true
+          description: User Object
+          schema:
+            $ref: '#/definitions/SongsList'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ExpiredSignature'
+
+
+definitions:
+
+  # Users
+  User:
+    type: object
+    properties:
+      username:
+        type: string
+      password (encrypted): 
+        type: string
+      email:
+        type: string
+        
+  UserInput:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+        
+  Authentication:
+    type: object
+    properties:
+      token:
+        type: string
+        
+  # Songs
+  Song:
+    type: object
+    properties:
+      title:
+        type: string
+      artist:
+        type: string
+        
+  SongsList:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Song'
+
+  # Errors
+  ExpiredSignature:
+    type: object
+    properties:
+      detail: 
+        type: string
