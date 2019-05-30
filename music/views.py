@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from .serializers import SongsSerializer, TokenSerializer, UserSerializer
 from .models import Songs
 
+
 # Get the JWT settings, add these lines after the import/from lines
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -22,32 +23,37 @@ class ListSongsView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
 class RegisterUsersView(generics.CreateAPIView):
-    """
-    POST auth/register/
-    """
+    
+    #POST api/v1/register/
+    
     serializer_class = UserSerializer
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
+        serialized = UserSerializer(data=request.data)
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         email = request.data.get("email", "")
-        if not username and not password and not email:
-            return Response(
-                data={
-                    "message": "username, password and email is required to register a user"
-                },
-                status=status.HTTP_400_BAD_REQUEST
+        # if not username or not password or not email:
+        #     return Response(
+        #         data={
+        #             "message": "username, password and email is required to register a user"
+        #         },
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+
+        if serialized.is_valid(self):
+            new_user = User.objects.create_user(
+                username=username, password=password, email=email
             )
-        new_user = User.objects.create_user(
-            username=username, password=password, email=email
-        )
-        new_user.save()
-        print(UserSerializer(new_user).data)
-        return Response(
-            data=UserSerializer(new_user).data,
-            status=status.HTTP_201_CREATED
-        )
+            new_user.save()
+            print(UserSerializer(new_user).data)
+            return Response(
+                data=UserSerializer(new_user).data,
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(generics.CreateAPIView):
     """
