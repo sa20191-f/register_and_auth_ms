@@ -44,3 +44,10 @@ class UserSerializer(serializers.ModelSerializer):
              raise serializers.ValidationError(errors)
 
          return super(UserSerializer, self).validate(data)
+
+class UserAltSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ("id", "username", "email")
+

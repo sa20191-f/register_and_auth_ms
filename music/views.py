@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import status
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .serializers import SongsSerializer, TokenSerializer, UserSerializer
+from .serializers import SongsSerializer, TokenSerializer, UserSerializer, UserAltSerializer
 from .models import Songs
 
 
@@ -22,6 +22,13 @@ class ListSongsView(generics.ListAPIView):
     serializer_class = SongsSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+class ListUsersView(generics.ListAPIView):
+    """
+    Provides a get method handler.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserAltSerializer
+
 class RegisterUsersView(generics.CreateAPIView):
     
     #POST api/v1/register/
@@ -30,24 +37,27 @@ class RegisterUsersView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        serialized = UserSerializer(data=request.data)
+        
         username = request.data.get("username", "")
-        password = request.data.get("password", "")
         email = request.data.get("email", "")
-        # if not username or not password or not email:
-        #     return Response(
-        #         data={
-        #             "message": "username, password and email is required to register a user"
-        #         },
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
+        password = request.data.get("password", "")
+
+        serialized = UserSerializer(data=request.data)
+        if not username or not password or not email:
+            print("EMPTU FIELDS")
+            return Response(
+                data={
+                    "message": "username, password and email is required to register a user"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if serialized.is_valid(self):
             new_user = User.objects.create_user(
-                username=username, password=password, email=email
+                username=username, email=email, password=password
             )
             new_user.save()
-            print(UserSerializer(new_user).data)
+            print("1:  " , UserSerializer(new_user).data)
             return Response(
                 data=UserSerializer(new_user).data,
                 status=status.HTTP_201_CREATED
@@ -87,7 +97,9 @@ class LoginView(generics.CreateAPIView):
 class LogoutView(generics.CreateAPIView):
     queryset = User.objects.all()
     def get(self, request, *args, **kwargs):
-
         logout(request)
-        return Response(status=status.HTTP_200_OK)
+        return Response(
+            data={
+                "message": "Logged out succesfully."
+            }, status=status.HTTP_200_OK)
 
