@@ -44,7 +44,6 @@ class RegisterUsersView(generics.CreateAPIView):
 
         serialized = UserSerializer(data=request.data)
         if not username or not password or not email:
-            print("EMPTU FIELDS")
             return Response(
                 data={
                     "message": "username, password and email is required to register a user"
@@ -57,7 +56,7 @@ class RegisterUsersView(generics.CreateAPIView):
                 username=username, email=email, password=password
             )
             new_user.save()
-            print("1:  " , UserSerializer(new_user).data)
+            print("1:  " , UserAltSerializer(new_user).data)
             return Response(
                 data=UserSerializer(new_user).data,
                 status=status.HTTP_201_CREATED
@@ -91,8 +90,23 @@ class LoginView(generics.CreateAPIView):
                     jwt_payload_handler(user)
                 )})
             serializer.is_valid()
-            return Response(serializer.data)
+            id_serializer = user.id
+            print(id_serializer)
+            return Response(
+                data = {
+                "token": serializer.data,
+                "id": request.user.id
+                }, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+# class IdView(generics.CreateAPIView):
+#     queryset = User.objects.all()
+#     def get(self, request, *args, **kwargs):
+#         current_user = request.user
+#         return Response(
+#             data={
+#                 "id": current_user.id
+#             }, status=status.HTTP_200_OK)
 
 class LogoutView(generics.CreateAPIView):
     queryset = User.objects.all()
