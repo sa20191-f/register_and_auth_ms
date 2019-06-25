@@ -1,15 +1,19 @@
-
 from django.core import exceptions
 import django.contrib.auth.password_validation as validators
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Songs
+from .models import Songs, UserTokenInfo
 
 
 class SongsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Songs
         fields = ("title", "artist")
+
+class UserTokenInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTokenInfo
+        fields = ("id", "userID", "userType", "token")
 
 class TokenSerializer(serializers.Serializer):
     """
