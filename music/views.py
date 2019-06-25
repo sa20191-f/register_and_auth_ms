@@ -25,8 +25,8 @@ class ListCreateUTIView(generics.ListCreateAPIView):
     #decorator goes here
     def post(self, request, *args, **kwargs):
         new_instance = UserTokenInfo.objects.create(
-            userID=request.user,
-            userType=request.data["userType"],
+            userID=request.data["userID"],
+            tokenType=request.data["tokenType"],
             token=request.data["token"],
         )
         return Response(
@@ -43,7 +43,7 @@ class UTIDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         new_instance = self.queryset.filter(userID=kwargs["userID"])
-        result_list = list(new_instance.values("id", "userType", "token"))
+        result_list = list(new_instance.values("id", "tokenType", "token"))
         if not result_list:
             return Response(
             data={
@@ -56,7 +56,7 @@ class UTIDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         # json_res = []
         # for record in new_instance: 
-        #     json_obj = dict(userID=record.userID.pk, userType=record.userType, token=record.token)
+        #     json_obj = dict(userID=record.userID.pk, tokenType=record.tokenType, token=record.token)
         #     print(json_obj)
         #     json_res.append(json_obj)
         # return Response(json_res)

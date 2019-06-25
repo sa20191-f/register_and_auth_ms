@@ -13,7 +13,7 @@ class SongsSerializer(serializers.ModelSerializer):
 class UserTokenInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTokenInfo
-        fields = ("id", "userID", "userType", "token")
+        fields = ("id", "userID", "tokenType", "token")
 
 class TokenSerializer(serializers.Serializer):
     """

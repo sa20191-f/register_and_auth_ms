@@ -17,6 +17,6 @@ class Songs(models.Model):
 #     is_admin = models.BooleanField(default=False)
 
 class UserTokenInfo(models.Model):
-    userID = models.ForeignKey(User, on_delete=models.CASCADE)
-    userType = models.IntegerField(default=1)
-    token = models.CharField(max_length=1000, null =False)
+    userID = models.IntegerField()
+    tokenType = models.IntegerField(default=1)
+    token = models.CharField(max_length=1000, null=False)
