@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import datetimehttps://stackoverflow.com/questions/49903923/django-settings-py-not-updating-on-production
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,9 +33,10 @@ ALLOWED_HOSTS = [
     '192.168.1.68',
     '172.20.10.8',
     '192.168.1.72',
-    '192.168.99.101', '192.168.99.102', '192.168.1.68',
-    '34.66.226.238', '35.238.47.21',
-    '10.128.0.6', '10.128.0.5'
+    '34.66.226.238', 
+    '35.238.47.21',
+    '10.128.0.6', 
+    '10.128.0.5'
 ]
 
 # Application definition
