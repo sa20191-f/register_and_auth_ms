@@ -7,11 +7,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .serializers import SongsSerializer, TokenSerializer, UserSerializer, UserAltSerializer, UserTokenInfoSerializer
 from .models import Songs, UserTokenInfo
-
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 # Get the JWT settings, add these lines after the import/from lines
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+# Baseline LDAP configuration.
+AUTH_LDAP_SERVER_URI = '192.168.99.102'
+AUTH_LDAP_BIND_DN = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
+AUTH_LDAP_BIND_PASSWORD = 'admin'
 
 class ListCreateUTIView(generics.ListCreateAPIView):
     """
@@ -137,17 +143,38 @@ class LoginView(generics.CreateAPIView):
     POST auth/login/
     """
     serializer_class = UserSerializer
-    # This permission class will overide the global permission
-    # class setting
+    queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
 
-    queryset = User.objects.all()
-
     def post(self, request, *args, **kwargs):
+        ldapHost = 'ldap://192.168.99.102'
+        admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
+        admin_password = "admin"
+
+        try:
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,0)
+            con = ldap.initialize(ldapHost)
+            con.set_option(ldap.OPT_PROTOCOL_VERSION, 3)
+            print("Connectado al servidor LDAP...")
+            con.simple_bind_s(admin_dn, admin_password)
+            print("Administrador autenticado en el servidor LDAP!")
+        except ldap.INVALID_CREDENTIALS:
+            print("invalid credentials on ldap")
+        except ldap.SERVER_DOWN:
+            print("Ldap server down")
+
         username = request.data.get("username")
         password = request.data.get("password")
+        email = request.data.get("email")
         user = authenticate(request, username=username, password=password)
 
+        dn = "cn=" + email + ",ou=academy,dc=arqsoft,dc=unal,dc=edu,dc=co"
+        try:
+            con.simple_bind_s(dn, password)
+            print("¡Autenticación satisfactoria!")
+        except (ldap.LDAPError):
+            print("El usuario no existe en el servidor LDAP")
+        
         if user is not None:
             # login saves the user’s ID in the session,
             # using Django’s session framework.
@@ -159,7 +186,7 @@ class LoginView(generics.CreateAPIView):
                 )})
             serializer.is_valid()
             id_serializer = user.id
-            print(id_serializer)
+            #print(id_serializer)
             return Response(
                 data = {
                 "token": serializer.data,
