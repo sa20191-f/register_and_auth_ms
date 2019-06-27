@@ -167,14 +167,16 @@ class LoginView(generics.CreateAPIView):
                 }, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-# class IdView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     def get(self, request, *args, **kwargs):
-#         current_user = request.user
-#         return Response(
-#             data={
-#                 "id": current_user.id
-#             }, status=status.HTTP_200_OK)
+class IdView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        return Response(
+            data={
+                "id": current_user.id,
+                "username": current_user.username,
+                "email": current_user.email,
+            }, status=status.HTTP_200_OK)
 
 class LogoutView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -185,3 +187,9 @@ class LogoutView(generics.CreateAPIView):
                 "message": "Logged out succesfully."
             }, status=status.HTTP_200_OK)
 
+class UserView(generics.RetrieveAPIView):
+    model = User
+    serializer_class = UserAltSerializer
+    queryset = User.objects.all()
+    def get(self, request, *args, **kwargs):
+        return Response(UserAltSerializer(request.user).data)
