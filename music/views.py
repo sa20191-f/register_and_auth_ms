@@ -13,7 +13,8 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 # Baseline LDAP configuration.
-ldapHost = 'ldap://192.168.99.102'
+# ldapHost = 'ldap://192.168.99.102'
+ldapHost = 'ldap://34.66.226.238'
 admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
 admin_password = "admin"
 
