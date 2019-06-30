@@ -15,9 +15,9 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 # Baseline LDAP configuration.
-AUTH_LDAP_SERVER_URI = '192.168.99.102'
-AUTH_LDAP_BIND_DN = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
-AUTH_LDAP_BIND_PASSWORD = 'admin'
+ldapHost = 'ldap://192.168.99.102'
+admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
+admin_password = "admin"
 
 class ListCreateUTIView(generics.ListCreateAPIView):
     """
@@ -64,7 +64,7 @@ class UTIDetailView(generics.RetrieveUpdateDestroyAPIView):
         # for record in new_instance: 
         #     json_obj = dict(userID=record.userID.pk, tokenType=record.tokenType, token=record.token)
         #     print(json_obj)
-        #     json_res.append(json_obj)
+        #     json_res.append(json_obj)
         # return Response(json_res)
 
 class UTIDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -138,6 +138,28 @@ class RegisterUsersView(generics.CreateAPIView):
         else:
             return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def connection(dn, password):
+    try:
+        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,0)
+        con = ldap.initialize(ldapHost)
+        con.set_option(ldap.OPT_PROTOCOL_VERSION, 3)        
+        print("Connectado al servidor LDAP...")
+    except ldap.INVALID_CREDENTIALS:
+        print("Credenciales incorrectas en el servidor LDAP")
+        return(False)
+    except ldap.SERVER_DOWN:
+        print("LDAP server down")
+        return(False)
+    print("line 153 ok")
+    return(con)
+
+def validate(con, dn, password):
+    try:
+        con.simple_bind_s(dn, password)
+        return(True)
+    except (ldap.LDAPError):
+        return(False)
+
 class LoginView(generics.CreateAPIView):
     """
     POST auth/login/
@@ -147,34 +169,20 @@ class LoginView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        ldapHost = 'ldap://192.168.99.102'
-        admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
-        admin_password = "admin"
-
-        try:
-            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,0)
-            con = ldap.initialize(ldapHost)
-            con.set_option(ldap.OPT_PROTOCOL_VERSION, 3)
-            print("Connectado al servidor LDAP...")
-            con.simple_bind_s(admin_dn, admin_password)
-            print("Administrador autenticado en el servidor LDAP!")
-        except ldap.INVALID_CREDENTIALS:
-            print("invalid credentials on ldap")
-        except ldap.SERVER_DOWN:
-            print("Ldap server down")
-
         username = request.data.get("username")
         password = request.data.get("password")
         email = request.data.get("email")
+        dn = "cn=" + email + ",ou=academy,dc=arqsoft,dc=unal,dc=edu,dc=co"
+
+        ldapConnection = connection(dn, password)
+        if ldapConnection == False:
+            return Response(data={"message":"LDAP server down"})
+        userVerify = validate(ldapConnection, dn, password)
+
+        if userVerify == False:
+            return Response(data={"message":"Error en la autenticación en el servidor LDAP"})
         user = authenticate(request, username=username, password=password)
 
-        dn = "cn=" + email + ",ou=academy,dc=arqsoft,dc=unal,dc=edu,dc=co"
-        try:
-            con.simple_bind_s(dn, password)
-            print("¡Autenticación satisfactoria!")
-        except (ldap.LDAPError):
-            print("El usuario no existe en el servidor LDAP")
-        
         if user is not None:
             # login saves the user’s ID in the session,
             # using Django’s session framework.
@@ -192,7 +200,9 @@ class LoginView(generics.CreateAPIView):
                 "token": serializer.data,
                 "id": request.user.id
                 }, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response(data={
+            "message":"Esa combinación de usuario y password no existe en la base de datos"
+        }, status=status.HTTP_401_UNAUTHORIZED)
 
 class IdView(generics.CreateAPIView):
     queryset = User.objects.all()

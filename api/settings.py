@@ -31,7 +31,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.99.101', '192.168.99.102', '192.168.1.68',
     '34.66.226.238', '35.238.47.21',
-    '10.128.0.6', '10.128.0.5'
 ]
 
 # Application definition
@@ -158,10 +157,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'django_auth_ldap.backend.LDAPBackend',
-]
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'django_auth_ldap.backend.LDAPBackend',
+# ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
