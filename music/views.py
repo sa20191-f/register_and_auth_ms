@@ -1,5 +1,4 @@
 from rest_framework_jwt.settings import api_settings
-#from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import status
@@ -8,7 +7,6 @@ from django.contrib.auth.models import User
 from .serializers import SongsSerializer, TokenSerializer, UserSerializer, UserAltSerializer, UserTokenInfoSerializer
 from .models import Songs, UserTokenInfo
 import ldap
-from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 # Get the JWT settings, add these lines after the import/from lines
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -150,7 +148,7 @@ def connection(dn, password):
     except ldap.SERVER_DOWN:
         print("LDAP server down")
         return(False)
-    print("line 153 ok")
+    #print("line 153 ok")
     return(con)
 
 def validate(con, dn, password):
