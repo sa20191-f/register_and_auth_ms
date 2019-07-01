@@ -1,5 +1,4 @@
 from rest_framework_jwt.settings import api_settings
-#from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import status
@@ -7,11 +6,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .serializers import SongsSerializer, TokenSerializer, UserSerializer, UserAltSerializer, UserTokenInfoSerializer
 from .models import Songs, UserTokenInfo
-
+import ldap
 
 # Get the JWT settings, add these lines after the import/from lines
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+# Baseline LDAP configuration.
+# ldapHost = 'ldap://192.168.99.102'
+ldapHost = 'ldap://34.66.226.238'
+admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
+admin_password = "admin"
 
 class ListCreateUTIView(generics.ListCreateAPIView):
     """
@@ -58,7 +63,7 @@ class UTIDetailView(generics.RetrieveUpdateDestroyAPIView):
         # for record in new_instance: 
         #     json_obj = dict(userID=record.userID.pk, tokenType=record.tokenType, token=record.token)
         #     print(json_obj)
-        #     json_res.append(json_obj)
+        #     json_res.append(json_obj)
         # return Response(json_res)
 
 class UTIDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -132,20 +137,49 @@ class RegisterUsersView(generics.CreateAPIView):
         else:
             return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def connection(dn, password):
+    try:
+        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,0)
+        con = ldap.initialize(ldapHost)
+        con.set_option(ldap.OPT_PROTOCOL_VERSION, 3)        
+        print("Connectado al servidor LDAP...")
+    except ldap.INVALID_CREDENTIALS:
+        print("Credenciales incorrectas en el servidor LDAP")
+        return(False)
+    except ldap.SERVER_DOWN:
+        print("LDAP server down")
+        return(False)
+    #print("line 153 ok")
+    return(con)
+
+def validate(con, dn, password):
+    try:
+        con.simple_bind_s(dn, password)
+        return(True)
+    except (ldap.LDAPError):
+        return(False)
+
 class LoginView(generics.CreateAPIView):
     """
     POST auth/login/
     """
     serializer_class = UserSerializer
-    # This permission class will overide the global permission
-    # class setting
-    permission_classes = (permissions.AllowAny,)
-
     queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
         password = request.data.get("password")
+        email = request.data.get("email")
+        dn = "cn=" + email + ",ou=academy,dc=arqsoft,dc=unal,dc=edu,dc=co"
+
+        ldapConnection = connection(dn, password)
+        if ldapConnection == False:
+            return Response(data={"message":"LDAP server down"})
+        userVerify = validate(ldapConnection, dn, password)
+
+        if userVerify == False:
+            return Response(data={"message":"Error en la autenticación en el servidor LDAP"})
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -159,13 +193,15 @@ class LoginView(generics.CreateAPIView):
                 )})
             serializer.is_valid()
             id_serializer = user.id
-            print(id_serializer)
+            #print(id_serializer)
             return Response(
                 data = {
                 "token": serializer.data,
                 "id": request.user.id
                 }, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response(data={
+            "message":"Esa combinación de usuario y password no existe en la base de datos"
+        }, status=status.HTTP_401_UNAUTHORIZED)
 
 class IdView(generics.CreateAPIView):
     queryset = User.objects.all()

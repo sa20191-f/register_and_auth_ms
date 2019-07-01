@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import datetime
+import ldap
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,7 +37,8 @@ ALLOWED_HOSTS = [
     '34.66.226.238', 
     '35.238.47.21',
     '10.128.0.6', 
-    '10.128.0.5'
+    '10.128.0.5',
+    'users-ms',
 ]
 
 # Application definition
@@ -163,6 +165,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'django_auth_ldap.backend.LDAPBackend',
+# ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/

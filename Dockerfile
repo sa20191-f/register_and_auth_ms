@@ -2,6 +2,9 @@
 # We Use an official Python runtime as a parent image
 FROM python:3.6
 
+RUN apt-get update && apt-get install -y python-dev libldap2-dev libsasl2-dev libssl-dev
+# RUN apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev
+
 # The enviroment variable ensures that the python output is set straight to the terminal with out buffering it first
 ENV PYTHONUNBUFFERED 1
 
