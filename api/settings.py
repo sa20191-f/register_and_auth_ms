@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.99.101', '192.168.99.102', '192.168.1.68',
     '34.66.226.238', '35.238.47.21',
-    'users-ms'
+    'users-ms', 'users_ms'
 ]
 
 # Application definition
@@ -68,7 +68,7 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_encode_handler',
 
     'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
+    'rest_framework_jwt.utils.jwt_decode_https://www.smwcentral.net/?p=faq&page=1219815-bps-fileshandler',
 
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
@@ -87,7 +87,7 @@ JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=7200),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
 
