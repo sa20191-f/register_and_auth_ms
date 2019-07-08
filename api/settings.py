@@ -68,7 +68,7 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_encode_handler',
 
     'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_https://www.smwcentral.net/?p=faq&page=1219815-bps-fileshandler',
+    'rest_framework_jwt.utils.jwt_decode_handler',
 
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',

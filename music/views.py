@@ -129,7 +129,7 @@ class RegisterUsersView(generics.CreateAPIView):
                 username=username, email=email, password=password
             )
             new_user.save()
-            print("1:  " , UserAltSerializer(new_user).data)
+            print("1:  ", UserAltSerializer(new_user).data)
             return Response(
                 data=UserSerializer(new_user).data,
                 status=status.HTTP_201_CREATED
@@ -145,19 +145,19 @@ def connection(dn, password):
         print("Connectado al servidor LDAP...")
     except ldap.INVALID_CREDENTIALS:
         print("Credenciales incorrectas en el servidor LDAP")
-        return(False)
+        return False
     except ldap.SERVER_DOWN:
         print("LDAP server down")
-        return(False)
+        return False
     #print("line 153 ok")
     return(con)
 
 def validate(con, dn, password):
     try:
         con.simple_bind_s(dn, password)
-        return(True)
+        return True
     except (ldap.LDAPError):
-        return(False)
+        return False
 
 class LoginView(generics.CreateAPIView):
     """
