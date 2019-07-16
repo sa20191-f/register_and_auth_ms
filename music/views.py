@@ -177,11 +177,13 @@ class LoginView(generics.CreateAPIView):
         if ldapConnection == False:
             return Response(data={"message":"LDAP server down"})
         userVerify = validate(ldapConnection, dn, password)
-
+        print("Se conectó al ldap")
         if userVerify == False:
             return Response(data={"message":"Error en la autenticación en el servidor LDAP"})
         user = authenticate(request, username=username, password=password)
-
+        print("Se verifico el usuario")
+        print(str(user))
+        print("El de arriba es el usuario")
         if user is not None:
             # login saves the user’s ID in the session,
             # using Django’s session framework.
@@ -193,7 +195,7 @@ class LoginView(generics.CreateAPIView):
                 )})
             serializer.is_valid()
             id_serializer = user.id
-            #print(id_serializer)
+            print(id_serializer)
             return Response(
                 data = {
                 "token": serializer.data,
