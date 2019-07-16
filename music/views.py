@@ -14,7 +14,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 # Baseline LDAP configuration.
 # ldapHost = 'ldap://192.168.99.102'
-ldapHost = 'ldap://34.66.226.238'
+ldapHost = 'ldap://35.232.68.151'
 admin_dn = "cn=admin,dc=arqsoft,dc=unal,dc=edu,dc=co"
 admin_password = "admin"
 
